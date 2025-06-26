@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NotiX.Models
 {
-    /// <summary>
-    /// Classe para descrever os Utilizadores existentes na redação
-    /// </summary>
-    public class Utilizadores : IdentityUser
+	/// <summary>
+	/// Classe para descrever os Utilizadores existentes na redação
+	/// </summary>
+
+	[NotMapped]
+	public class Utilizadores : IdentityUser
     {
         public Utilizadores()
         {

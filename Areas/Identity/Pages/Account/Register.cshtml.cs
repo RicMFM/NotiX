@@ -157,7 +157,7 @@ namespace NotiX.Areas.Identity.Pages.Account
                 {
                     // houve sucesso na criação da conta de autenticação
                     _logger.LogInformation("User created a new account with password.");
-                    await _userManager.AddToRoleAsync(user, "Funcionario");
+                    //await _userManager.AddToRoleAsync(user, "Funcionario");
                     // **********************************************
                     // vamos escrever na BD os dados do Professor
                     // na prática, quero guardar na BD os
