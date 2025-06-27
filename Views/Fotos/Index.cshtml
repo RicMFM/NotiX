@@ -1,0 +1,47 @@
+﻿@model IEnumerable<NotiX.Models.Fotos>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1 class ="text-center">Fotos existentes</h1>
+<br/>
+@if (User.Identity.IsAuthenticated)
+{
+    <p>
+        <form asp-action="Create" method="get">
+            <button type="submit" class="btn btn-primary">Adicionar Foto</button>
+        </form>
+    </p>
+}
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Nome)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nome)
+            </td>
+            <td>
+                    
+                    <form asp-action="Details" method="get" asp-route-id="@item.Id" class="d-inline">
+                        <button type="submit" class="btn btn-primary" class="d-inline">Detalhes</button>
+                    </form>
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <form asp-action="Delete" method="get" asp-route-id="@item.Id" class="d-inline">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    }
+                </td>
+        </tr>
+}
+    </tbody>
+</table>

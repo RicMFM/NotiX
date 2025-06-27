@@ -1,0 +1,27 @@
+﻿@model NotiX.Models.Fotos
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1 class="text-center">Detalhes da Foto</h1>
+
+<div class="d-flex justify-content-center">
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Nome)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Nome)
+        </dd>
+        <dd class="col-sm-10">
+            <img src="@Url.Content("~/Imagens/" + @Model.Nome)" alt="Foto" style="width: 100%;" />
+        </dd>
+    </dl>
+</div>
+<div>
+    <form asp-action="Index" method="get">
+        <button type="submit" class="btn btn-danger"> <i class="bi bi-arrow-left"></i> Voltar</button>
+    </form>
+</div>
+

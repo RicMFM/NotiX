@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NotiX.Data;
 
@@ -11,13 +12,15 @@ using NotiX.Data;
 namespace NotiX.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240611132600_Quinta")]
+    partial class Quinta
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.7")
+                .HasAnnotation("ProductVersion", "8.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -101,11 +104,6 @@ namespace NotiX.Data.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
-
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -157,10 +155,6 @@ namespace NotiX.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasDiscriminator().HasValue("IdentityUser");
-
-                    b.UseTphMappingStrategy();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -266,14 +260,8 @@ namespace NotiX.Data.Migrations
 
             modelBuilder.Entity("NotiX.Models.Dados", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("DataHora")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("DataHora")
+                        .HasColumnType("datetime2");
 
                     b.Property<float?>("Humidade")
                         .HasColumnType("real");
@@ -287,7 +275,7 @@ namespace NotiX.Data.Migrations
                     b.Property<int?>("lumino")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("DataHora");
 
                     b.ToTable("Dados");
                 });
@@ -319,9 +307,6 @@ namespace NotiX.Data.Migrations
                     b.Property<int>("CategoriaFK")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("DataEdicao")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("DataEscrita")
                         .HasColumnType("datetime2");
 
@@ -340,33 +325,43 @@ namespace NotiX.Data.Migrations
 
             modelBuilder.Entity("NotiX.Models.Utilizadores", b =>
                 {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.Property<string>("Contacto")
-                        .HasMaxLength(9)
-                        .HasColumnType("nvarchar(9)");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Contacto")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("DataInicio")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateOnly>("DataNascimento")
-                        .HasColumnType("date");
+                    b.Property<int>("Email")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Idade")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImagemPerf")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasMaxLength(60)
-                        .HasColumnType("nvarchar(60)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int?>("NoticiasId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
-                        .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                    b.Property<string>("Tipo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("NoticiasId");
 
-                    b.HasDiscriminator().HasValue("Utilizadores");
+                    b.ToTable("Utilizadores");
                 });
 
             modelBuilder.Entity("FotosNoticias", b =>

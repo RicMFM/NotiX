@@ -1,0 +1,77 @@
+﻿@model NotiX.ViewModels.NoticiasFotosViewMo
+
+@{
+    ViewData["Title"] = "Adicionar Notícia";
+}
+<div>
+    <form asp-action="Index" method="get">
+        <button type="submit" class="btn btn-danger"> <i class="bi bi-arrow-left"></i> Voltar</button>
+    </form>
+
+    <h1 class="text-center">Adicionar Noticia</h1>
+
+</div>
+
+
+<hr />
+<div class="d-flex justify-content-center">
+    <div class="col-md-6">
+
+            @* este objeto irá levar os conteúdos do formulário
+            para o SERVIDOR
+            - o atributo 'method' define como os dados são enviados
+            - o atributo 'enctype' define que vamos enviar, também, ficheiros
+            *@
+            <form asp-action="Create"
+                  method="post"
+                  enctype="multipart/form-data">
+
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="Noticias.Titulo" class="control-label"></label>
+                <input asp-for="Noticias.Titulo" class="form-control" />
+                <span asp-validation-for="Noticias.Titulo" class="text-danger"></span>
+            </div>
+
+                <br />
+
+            <div class="form-group">
+                <label asp-for="Noticias.Texto" class="control-label"></label>
+                <input asp-for="Noticias.Texto" class="form-control" />
+                <span asp-validation-for="Noticias.Texto" class="text-danger"></span>
+            </div>
+            <br/>
+            <div class="form-group">
+                Nome da Imagem
+                <input asp-for="Nome" class="form-control" />
+                <span asp-validation-for="Nome" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                Adicionar Fotos
+                <input multiple type="file" name="ListaFotos" accept=".png,.jpg,.jpeg" class="form-control" />
+                <span asp-validation-for="Noticias.ListaFotos" class="text-danger"></span>
+            </div>
+            <br />
+            @Html.LabelFor(m => m.Noticias.CategoriaFK)
+            <select class="form-select" asp-for="Noticias.CategoriaFK" aria-label="Escolher Categoria">
+                <option value="@null">Selecione uma Categoria</option>
+                @foreach (var cat in ViewData["CategoriaFK"] as List<Categorias>)
+                {
+                    <option value="@cat.Id">@cat.Categoria</option>
+                }
+            </select>
+            <br />
+            <div class="form-group">
+                    <input type="submit" value="Adicionar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
