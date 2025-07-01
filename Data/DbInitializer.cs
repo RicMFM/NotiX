@@ -29,38 +29,16 @@ namespace NotiX.Data
 
 
             // Se não houver Cursos, cria-os
-            var cursos = Array.Empty<Categorias>();
+            var categorias = Array.Empty<Categorias>();
             if (!dbContext.Categorias.Any())
             {
-                cursos = [
+                categorias = [
                    new Categorias{ Categoria="Musica"},
                new Categorias{ Categoria="Tecnologia"},
                new Categorias{ Categoria="Cultura"}
                 //adicionar outros cursos
                 ];
-                await dbContext.Categorias.AddRangeAsync(cursos);
-                haAdicao = true;
-            }
-
-
-            // Se não houver Utilizadores Identity, cria-os
-            var users = Array.Empty<Utilizadores>();
-            //a hasher to hash the password before seeding the user to the db
-            var hasher = new PasswordHasher<IdentityUser>();
-
-            if (!dbContext.Users.Any())
-            {
-                users = [
-                   new Utilizadores{Nome="admin", Contacto="931313131",UserName="admin@mail.pt", NormalizedUserName="ADMIN@MAIL.PT",
-               Email="admin@mail.pt",NormalizedEmail="ADMIN@MAIL.PT", EmailConfirmed=true,
-               SecurityStamp="5ZPZEF6SBW7IU4M344XNLT4NN5RO4GRU", ConcurrencyStamp="c86d8254-dd50-44be-8561-d2d44d4bbb2f",
-               PasswordHash=hasher.HashPassword(null,"*aA1234567") },
-            new Utilizadores{Nome="jose", Contacto="921212121",UserName="email.sete@mail.pt", NormalizedUserName="EMAIL.SETE@MAIL.PT",
-               Email="email.sete@mail.pt",NormalizedEmail="EMAIL.SETE@MAIL.PT", EmailConfirmed=true,
-               SecurityStamp="TW49PF6SBW7IU4M344XNLT4NN5RO4GRU", ConcurrencyStamp="d8254c86-dd50-44be-8561-d2d44d4bbb2f",
-               PasswordHash=hasher.HashPassword(null,"Aa0_aa") }
-                   ];
-                await dbContext.Users.AddRangeAsync(users);
+                await dbContext.Categorias.AddRangeAsync(categorias);
                 haAdicao = true;
             }
 

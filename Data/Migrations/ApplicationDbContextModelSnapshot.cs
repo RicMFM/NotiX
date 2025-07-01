@@ -62,6 +62,20 @@ namespace NotiX.Data.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "a",
+                            Name = "admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "f",
+                            Name = "funcionario",
+                            NormalizedName = "FUNCIONARIO"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -100,11 +114,6 @@ namespace NotiX.Data.Migrations
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Discriminator")
-                        .IsRequired()
-                        .HasMaxLength(13)
-                        .HasColumnType("nvarchar(13)");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -158,9 +167,23 @@ namespace NotiX.Data.Migrations
 
                     b.ToTable("AspNetUsers", (string)null);
 
-                    b.HasDiscriminator().HasValue("IdentityUser");
-
-                    b.UseTphMappingStrategy();
+                    b.HasData(
+                        new
+                        {
+                            Id = "admin",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "bd742d3f-ebb1-404d-bca4-0c8a9bab9bf3",
+                            Email = "admin@mail.pt",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@MAIL.PT",
+                            NormalizedUserName = "ADMIN@MAIL.PT",
+                            PasswordHash = "AQAAAAIAAYagAAAAEK28EbuslIWK2wsjliG8IiNOO1lI7a/V7vEMgoswgHcfLXpnEqQPMkzLXaIBy417kw==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "0e08c63f-d09b-4f21-9fbf-f18e092ed4ea",
+                            TwoFactorEnabled = false,
+                            UserName = "admin@mail.pt"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -225,6 +248,13 @@ namespace NotiX.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "admin",
+                            RoleId = "a"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -262,34 +292,6 @@ namespace NotiX.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categorias");
-                });
-
-            modelBuilder.Entity("NotiX.Models.Dados", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("DataHora")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float?>("Humidade")
-                        .HasColumnType("real");
-
-                    b.Property<string>("Luz")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float?>("Temperatura")
-                        .HasColumnType("real");
-
-                    b.Property<int?>("lumino")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Dados");
                 });
 
             modelBuilder.Entity("NotiX.Models.Fotos", b =>
@@ -340,7 +342,11 @@ namespace NotiX.Data.Migrations
 
             modelBuilder.Entity("NotiX.Models.Utilizadores", b =>
                 {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Contacto")
                         .HasMaxLength(9)
@@ -349,7 +355,7 @@ namespace NotiX.Data.Migrations
                     b.Property<DateTime>("DataInicio")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateOnly>("DataNascimento")
+                    b.Property<DateOnly?>("DataNascimento")
                         .HasColumnType("date");
 
                     b.Property<string>("Nome")
@@ -360,13 +366,15 @@ namespace NotiX.Data.Migrations
                     b.Property<int?>("NoticiasId")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserId")
+                    b.Property<string>("UserName")
                         .HasMaxLength(40)
                         .HasColumnType("nvarchar(40)");
 
+                    b.HasKey("Id");
+
                     b.HasIndex("NoticiasId");
 
-                    b.HasDiscriminator().HasValue("Utilizadores");
+                    b.ToTable("Utilizadores");
                 });
 
             modelBuilder.Entity("FotosNoticias", b =>

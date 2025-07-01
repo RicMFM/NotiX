@@ -12,15 +12,15 @@ using NotiX.Data;
 namespace NotiX.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240416220235_Primeira")]
-    partial class Primeira
+    [Migration("20250629153640_RoledInit")]
+    partial class RoledInit
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.3")
+                .HasAnnotation("ProductVersion", "8.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -65,6 +65,20 @@ namespace NotiX.Data.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "a",
+                            Name = "admin",
+                            NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = "f",
+                            Name = "funcionario",
+                            NormalizedName = "FUNCIONARIO"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -155,6 +169,24 @@ namespace NotiX.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = "admin",
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "bd742d3f-ebb1-404d-bca4-0c8a9bab9bf3",
+                            Email = "admin@mail.pt",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@MAIL.PT",
+                            NormalizedUserName = "ADMIN@MAIL.PT",
+                            PasswordHash = "AQAAAAIAAYagAAAAEK28EbuslIWK2wsjliG8IiNOO1lI7a/V7vEMgoswgHcfLXpnEqQPMkzLXaIBy417kw==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "0e08c63f-d09b-4f21-9fbf-f18e092ed4ea",
+                            TwoFactorEnabled = false,
+                            UserName = "admin@mail.pt"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
@@ -219,6 +251,13 @@ namespace NotiX.Data.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = "admin",
+                            RoleId = "a"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
@@ -251,34 +290,11 @@ namespace NotiX.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Categoria")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Categorias");
-                });
-
-            modelBuilder.Entity("NotiX.Models.Dados", b =>
-                {
-                    b.Property<DateTime>("DataHora")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("EstadoDia")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Humidade")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Luz")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("Temperatura")
-                        .HasColumnType("int");
-
-                    b.HasKey("DataHora");
-
-                    b.ToTable("Dados");
                 });
 
             modelBuilder.Entity("NotiX.Models.Fotos", b =>
@@ -305,8 +321,11 @@ namespace NotiX.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CategoriasId")
+                    b.Property<int>("CategoriaFK")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("DataEdicao")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DataEscrita")
                         .HasColumnType("datetime2");
@@ -319,7 +338,7 @@ namespace NotiX.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoriasId");
+                    b.HasIndex("CategoriaFK");
 
                     b.ToTable("Noticias");
                 });
@@ -332,27 +351,27 @@ namespace NotiX.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Contacto")
-                        .HasColumnType("int");
+                    b.Property<string>("Contacto")
+                        .HasMaxLength(9)
+                        .HasColumnType("nvarchar(9)");
 
                     b.Property<DateTime>("DataInicio")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Email")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Idade")
-                        .HasColumnType("int");
+                    b.Property<DateOnly?>("DataNascimento")
+                        .HasColumnType("date");
 
                     b.Property<string>("Nome")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
 
                     b.Property<int?>("NoticiasId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Tipo")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("UserName")
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
 
                     b.HasKey("Id");
 
@@ -429,9 +448,13 @@ namespace NotiX.Data.Migrations
 
             modelBuilder.Entity("NotiX.Models.Noticias", b =>
                 {
-                    b.HasOne("NotiX.Models.Categorias", null)
+                    b.HasOne("NotiX.Models.Categorias", "Categoria")
                         .WithMany("ListaNoticias")
-                        .HasForeignKey("CategoriasId");
+                        .HasForeignKey("CategoriaFK")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Categoria");
                 });
 
             modelBuilder.Entity("NotiX.Models.Utilizadores", b =>

@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using NotiX.Data;
 using NotiX.Models;
 
-namespace NotiX
+namespace NotiX.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
