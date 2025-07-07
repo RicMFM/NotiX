@@ -47,8 +47,8 @@ namespace NotiX.Controllers
                         // do utilizador estar autenticado
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Noticias.Include(c => c.Categoria).ToListAsync());
-        }
+			return RedirectToAction("Index", "Home");
+		}
 
         // GET: Noticias/Details/5
         [AllowAnonymous]
@@ -83,53 +83,52 @@ namespace NotiX.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(NoticiasFotosViewMo noticia, IFormFile ListaFotos)
         {
-            ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
-            // [Bind] - anotação para indicar que dados, vindos da View,
-            //          devem ser 'aproveitados'
-
-            //Recebe ficheiro do utilizador
-            var Fotos = HttpContext.Request.Form.Files;
-            string msgErro = "";
-            //vars. auxiliares
-            string nomeImagem = "";
-            bool haImagem = false;
-            Dictionary<Fotos, IFormFile> mapFotos = new Dictionary<Fotos, IFormFile>();
-            //verifica se existe ficheiro
-            if (Fotos != null)
-            {
-                int fotoIndex = 0;
-
-                foreach (var foto in Fotos)
-                {
-                    if (!(foto.ContentType == "image/png" || foto.ContentType == "image/jpeg"))
-                    {
-                        msgErro = "A imagem tem de ser do tipo png ou jpeg!";
-                        ModelState.AddModelError("Foto", msgErro);
-
-                    }
-                    else
-                    {
-                        nomeImagem = $"{noticia.Nome}_{fotoIndex++}";
-                        // obter a extensão do nome do ficheiro
-                        string extensao = Path.GetExtension(foto.FileName);
-                        nomeImagem += extensao;
-
-                        Fotos f = new Fotos(nomeImagem);
-                        noticia.Noticias.ListaFotos.Add(f);
-                        mapFotos.Add(f, foto);
-                        haImagem = true;
-                    }
-                }
-            }
+            
 
             if (ModelState.IsValid)
             {
-                Noticias n = noticia.Noticias;
-                _context.Add(n);
-                await _context.SaveChangesAsync();
-                // se há ficheiro de imagem,
-                // vamos guardar no disco rígido do servidor
-                if (haImagem)
+
+				ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
+				Noticias n = noticia.Noticias;
+				_context.Add(n);
+				await _context.SaveChangesAsync();
+
+				//Recebe ficheiro do utilizador
+				var Fotos = HttpContext.Request.Form.Files;
+				string msgErro = "";
+				//vars. auxiliares
+				string nomeImagem = "";
+				bool haImagem = false;
+				Dictionary<Fotos, IFormFile> mapFotos = new Dictionary<Fotos, IFormFile>();
+				//verifica se existe ficheiro
+				if (Fotos != null) {
+					int fotoIndex = 0;
+
+					foreach (var foto in Fotos) {
+						if (!(foto.ContentType == "image/png" || foto.ContentType == "image/jpeg")) {
+							msgErro = "A imagem tem de ser do tipo png ou jpeg!";
+							ModelState.AddModelError("Foto", msgErro);
+
+						}
+						else {
+							nomeImagem = $"{noticia.Nome}_{n.Id}_{fotoIndex++}";
+							// obter a extensão do nome do ficheiro
+							string extensao = Path.GetExtension(foto.FileName);
+							nomeImagem += extensao;
+
+							Fotos f = new Fotos(nomeImagem);
+							n.ListaFotos.Add(f);
+							mapFotos.Add(f, foto);
+							haImagem = true;
+						}
+					}
+				}
+
+				await _context.SaveChangesAsync();
+
+				// se há ficheiro de imagem,
+				// vamos guardar no disco rígido do servidor
+				if (haImagem)
                 {
                     // determinar onde se vai guardar a imagem
                     string localImagem = _webHostEnvironment.WebRootPath;

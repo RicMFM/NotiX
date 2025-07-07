@@ -30,7 +30,31 @@ namespace NotiX.Data
                 new IdentityRole { Id = "admin", Name = "Admin", NormalizedName = "ADMIN" }
                 );
 
-        }
+
+            // Criar utilizador admin
+            var hasher = new PasswordHasher<IdentityUser>();
+            builder.Entity<IdentityUser>().HasData(
+                new IdentityUser
+                {
+                    Id = "admin",
+                    UserName = "admin@mail.pt",
+                    NormalizedUserName = "ADMIN@MAIL.PT",
+                    Email = "admin@mail.pt",
+                    NormalizedEmail = "ADMIN@MAIL.PT",
+                    EmailConfirmed = true,
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    ConcurrencyStamp = Guid.NewGuid().ToString(),
+                    PasswordHash = hasher.HashPassword(null, "*aA1234567")
+                }
+            );
+
+            // Associar utilizador à role Admin
+            builder.Entity<IdentityUserRole<string>>().HasData(
+                new IdentityUserRole<string> { UserId = "admin", RoleId = "a" });
+
+
+		}
+
         /// <summary>
         /// tabela Utilizadores
         /// </summary>

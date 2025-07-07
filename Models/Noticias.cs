@@ -24,11 +24,11 @@ namespace NotiX.Models
         /// Titulo da noticia
         /// </summary>
         [Display(Name="Título")]
-        public string? Titulo { get; set; }
+        public string Titulo { get; set; }
         /// <summary>
         /// Texto da noticia
         /// </summary>
-        public string? Texto { get; set; }
+        public string Texto { get; set; }
 
         /// <summary>
         /// Data de Edição da noticia

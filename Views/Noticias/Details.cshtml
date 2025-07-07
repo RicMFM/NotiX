@@ -48,7 +48,11 @@
 </div>
 <br/>
 <div>
-    <form asp-action="Index" method="get">
-        <button type="submit" class="btn btn-danger"> <i class="bi bi-arrow-left"></i> Voltar</button>
-    </form>
+    @{
+        var referer = Context.Request.Headers["Referer"].ToString();
+        var voltarUrl = string.IsNullOrEmpty(referer) ? Url.Action("Index", "Home") : referer;
+    }
+    <a href="@voltarUrl" class="btn btn-danger">
+        <i class="bi bi-arrow-left"></i> Voltar
+    </a>
 </div>

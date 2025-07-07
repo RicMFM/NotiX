@@ -27,7 +27,7 @@ namespace NotiX.Models
         /// <summary>
         /// Nome do ficheiro que contém a Foto
         /// </summary>
-        public string? Nome { get; set; }
+        public string Nome { get; set; }
         /// <summary>
         /// Lista de Noticias associadas a cada foto
         /// </summary>
