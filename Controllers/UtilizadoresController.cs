@@ -31,7 +31,7 @@ namespace NotiX.Controllers
 
         // GET: Utilizadores/Details/5
         [AllowAnonymous]
-        public async Task<IActionResult> Details(string? id)
+        public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
             {
@@ -73,7 +73,7 @@ namespace NotiX.Controllers
         }
 
         // GET: Utilizadores/Edit/5
-        public async Task<IActionResult> Edit(string? id)
+        public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
@@ -93,7 +93,7 @@ namespace NotiX.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(string id, [Bind("Id,Nome,ImagemPerf,Email,Contacto,Idade,Tipo,DataInicio")] Utilizadores utilizadores)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Nome,ImagemPerf,Email,Contacto,Idade,Tipo,DataInicio")] Utilizadores utilizadores)
         {
             if (id != utilizadores.Id)
             {
@@ -124,7 +124,7 @@ namespace NotiX.Controllers
         }
 
         // GET: Utilizadores/Delete/5
-        public async Task<IActionResult> Delete(string? id)
+        public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
             {
@@ -144,7 +144,7 @@ namespace NotiX.Controllers
         // POST: Utilizadores/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var utilizadores = await _context.Utilizadores.FindAsync(id);
             if (utilizadores != null)
@@ -156,7 +156,7 @@ namespace NotiX.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool UtilizadoresExists(string id)
+        private bool UtilizadoresExists(int id)
         {
             return _context.Utilizadores.Any(e => e.Id == id);
         }

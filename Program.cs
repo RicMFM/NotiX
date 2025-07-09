@@ -13,23 +13,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddRoles<IdentityRole>() // Adiciona suporte a roles
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
-// Configure CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll",
-        builder =>
-        {
-            builder.AllowAnyOrigin()
-                   .AllowAnyHeader()
-                   .AllowAnyMethod();
-        });
-});
 
 var app = builder.Build();
 
@@ -52,10 +42,11 @@ app.UseStaticFiles();
 
 app.UseRouting();
 app.UseStatusCodePagesWithRedirects("~/Shared/Erro{0}");
-// Enable CORS
-app.UseCors("AllowAll");
 
 app.UseAuthorization();
+
+
+
 
 app.MapControllerRoute(
     name: "default",

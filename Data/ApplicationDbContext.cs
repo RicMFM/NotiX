@@ -13,23 +13,13 @@ namespace NotiX.Data
         }
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            /* Esta instrução importa tudo o que está pre-definido
-             * na super classe
-             */
             base.OnModelCreating(builder);
 
-            /* Adição de dados à Base de Dados
-             * Esta forma é PERSISTENTE, pelo que apenas deve ser utilizada em 
-             * dados que perduram da fase de 'desenvolvimento' para a fase de 'produção'.
-             * Implica efetuar um 'Add-Migration'
-             * 
-             * Atribuir valores às ROLES
-             */
+            // Criar os ROLES
             builder.Entity<IdentityRole>().HasData(
-                new IdentityRole { Id = "p", Name = "Funcionario", NormalizedName = "FUNCIONARIO" },
-                new IdentityRole { Id = "admin", Name = "Admin", NormalizedName = "ADMIN" }
-                );
-
+                new IdentityRole { Id = "a", Name = "admin", NormalizedName = "ADMIN" },
+                new IdentityRole { Id = "f", Name = "funcionario", NormalizedName = "FUNCIONARIO" }
+            );
 
             // Criar utilizador admin
             var hasher = new PasswordHasher<IdentityUser>();

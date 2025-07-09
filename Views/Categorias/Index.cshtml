@@ -8,11 +8,14 @@
 <br/>
 @if (User.Identity.IsAuthenticated)
 {
-    <p>
-        <form asp-action="Create" method="get">
-            <button type="submit" class="btn btn-primary">Adicionar Categoria</button>
-        </form>
-    </p>
+    @if (User.IsInRole("admin"))
+    {
+        <p>
+            <form asp-action="Create" method="get">
+                <button type="submit" class="btn btn-primary">Adicionar Categoria</button>
+            </form>
+        </p>
+    }
 }
 <table class="table">
     <thead>
@@ -29,7 +32,7 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Categoria)
             </td>
-                @if (User.Identity.IsAuthenticated)
+                @if (User.IsInRole("admin"))
                 {
             <td>
                     <form asp-action="Edit" method="get" asp-route-id="@item.Id" class="d-inline">
