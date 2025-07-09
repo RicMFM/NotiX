@@ -9,13 +9,13 @@
 <div class="d-flex justify-content-center">
     <dl class="row">
         <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nome)
+            @Html.DisplayNameFor(model => model.Nome) 
         </dt>
         <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nome)
+            @Html.DisplayFor(model => model.Nome) 
         </dd>
         <dd class="col-sm-10">
-            <img src="@Url.Content("~/Imagens/" + @Model.Nome)" alt="Foto" style="width: 100%;" />
+            <img src="@Url.Content("~/Imagens/" + @Model.Nome)" alt="Foto" style="max-width: 100%; max-height: 500px;" />
         </dd>
     </dl>
 </div>

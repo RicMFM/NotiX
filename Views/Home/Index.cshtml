@@ -6,17 +6,26 @@
 <div class="container">
     <h1 class="text-center mb-0">Notix</h1>
     <h4 class="text-center mb-4">As tuas notícias</h4>
+    @if (User.Identity.IsAuthenticated) {
+        <div class="mb-3">
+            <form asp-controller="Noticias" asp-action="Create" method="get">
+                <button type="submit" class="btn btn-success">
+                    <i class="bi bi-plus-circle"></i> Criar Nova
+                </button>
+            </form>
+        </div>
+    }
     <div class="row">
         @foreach (var item in Model) {
             <div class="col-md-4 mb-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <!-- Imagem -->
                     @{
-                        var nomeImagem = string.IsNullOrEmpty(item.Nome) ? "default.png" : item.Nome;
-                        var caminhoFisico = System.IO.Path.Combine(env.WebRootPath, "Imagens", nomeImagem);
-                        var caminhoImagem = System.IO.File.Exists(caminhoFisico)
-                            ? Url.Content("~/Imagens/" + nomeImagem)
-                            : Url.Content("~/Imagens/default.png");
+						var nomeImagem = string.IsNullOrEmpty(item.Nome) ? "default.png" : item.Nome; // Nome da imagem, se não existir, usa "default.png"
+						var caminhoFisico = System.IO.Path.Combine(env.WebRootPath, "Imagens", nomeImagem); // Caminho físico da imagem
+						var caminhoImagem = System.IO.File.Exists(caminhoFisico) // Verifica se a imagem existe
+						? Url.Content("~/Imagens/" + nomeImagem) // Se existir, usa o caminho da imagem
+						: Url.Content("~/Imagens/default.png"); // Se não existir, usa a imagem padrão
                     }
                     <img src="@caminhoImagem" class="card-img-top noticia-img" alt="Imagem da Notícia" />
                     <!-- Corpo do cartão -->
@@ -38,5 +47,17 @@
                 </div>
             </div>
         }
+    </div>
+    <!-- Paginação -->
+    <div class="d-flex justify-content-center mt-4">
+        <nav>
+            <ul class="pagination">
+                @for (int i = 1; i <= (int)ViewBag.TotalPaginas; i++) {
+                    <li class="page-item @(i == (int)ViewBag.PaginaAtual ? "active" : "")">
+                        <a class="page-link" href="@Url.Action("Index", "Home", new { pagina = i })">@i</a>
+                    </li>
+                }
+            </ul>
+        </nav>
     </div>
 </div>

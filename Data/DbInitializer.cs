@@ -28,17 +28,17 @@ namespace NotiX.Data
 
 
 
-            // Se não houver Cursos, cria-os
-            var cursos = Array.Empty<Categorias>();
+            // Se não houver Categorias, cria-as
+            var categorias = Array.Empty<Categorias>();
             if (!dbContext.Categorias.Any())
             {
-                cursos = [
+                categorias = [
                    new Categorias{ Categoria="Musica"},
                new Categorias{ Categoria="Tecnologia"},
                new Categorias{ Categoria="Cultura"}
                 //adicionar outros cursos
                 ];
-                await dbContext.Categorias.AddRangeAsync(cursos);
+                await dbContext.Categorias.AddRangeAsync(categorias);
                 haAdicao = true;
             }
 
@@ -64,8 +64,25 @@ namespace NotiX.Data
                 haAdicao = true;
             }
 
+			// Fotos pré-definidas
+			var foto1 = new Fotos("foto1.jpg");
+			var foto2 = new Fotos("foto2.jpg");
+			var foto3 = new Fotos("foto3.jpg");
 
-            try
+			var noticias = Array.Empty<Noticias>();
+			// Se não houver Notícias, cria-as
+			if (!dbContext.Noticias.Any()) {
+				noticias = [
+					new Noticias { Titulo = "Noticia 1", Texto = "Descrição da Notícia 1", DataEscrita = DateTime.Now, CategoriaFK = categorias[0].Id, ListaFotos = [foto1] },
+					new Noticias { Titulo = "Noticia 2", Texto = "Descrição da Notícia 2", DataEscrita = DateTime.Now, CategoriaFK = categorias[1].Id, ListaFotos = [foto2]},
+					new Noticias { Titulo = "Noticia 3", Texto = "Descrição da Notícia 3", DataEscrita = DateTime.Now, CategoriaFK = categorias[2].Id, ListaFotos = [foto3]}
+				];
+				await dbContext.Noticias.AddRangeAsync(noticias);
+				haAdicao = true;
+			}
+
+
+			try
             {
                 if (haAdicao)
                 {

@@ -72,7 +72,7 @@ namespace NotiX.Controllers
         public async Task<IActionResult> Create()
         {
             ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
-            NoticiasFotosViewMo noti = new NoticiasFotosViewMo();
+            NoticiasFotosViewMo noti = new();
             return View(noti);
         }
 
@@ -99,27 +99,26 @@ namespace NotiX.Controllers
 				//vars. auxiliares
 				string nomeImagem = "";
 				bool haImagem = false;
-				Dictionary<Fotos, IFormFile> mapFotos = new Dictionary<Fotos, IFormFile>();
+				Dictionary<Fotos, IFormFile> mapFotos = [];
 				//verifica se existe ficheiro
 				if (Fotos != null) {
 					int fotoIndex = 0;
 
 					foreach (var foto in Fotos) {
 						if (!(foto.ContentType == "image/png" || foto.ContentType == "image/jpeg")) {
-							msgErro = "A imagem tem de ser do tipo png ou jpeg!";
-							ModelState.AddModelError("Foto", msgErro);
+							msgErro = "A imagem tem de ser do tipo png ou jpeg!"; // mensagem de erro a ser mostrada na View
+							ModelState.AddModelError("Foto", msgErro); // Adiciona um erro ao modelo de estado para o campo Foto
 
 						}
 						else {
-							nomeImagem = $"{noticia.Nome}_{n.Id}_{fotoIndex++}";
-							// obter a extensão do nome do ficheiro
-							string extensao = Path.GetExtension(foto.FileName);
-							nomeImagem += extensao;
+							nomeImagem = $"{noticia.Nome}_{n.Id}_{fotoIndex++}"; //Nome da Notícia + Id da Notícia + índice da 
+							string extensao = Path.GetExtension(foto.FileName); // obter a extensão do nome do ficheiro
+							nomeImagem += extensao; // acrescentar a extensão ao nome da imagem
 
-							Fotos f = new Fotos(nomeImagem);
-							n.ListaFotos.Add(f);
-							mapFotos.Add(f, foto);
-							haImagem = true;
+							Fotos f = new(nomeImagem); //Cria uma nova instância de Fotos com o nome da imagem
+							n.ListaFotos.Add(f); // Adiciona a foto à lista de fotos da notícia
+							mapFotos.Add(f, foto); // Adiciona a foto e o ficheiro ao dicionário
+							haImagem = true; // Indica que há pelo menos uma imagem
 						}
 					}
 				}
@@ -138,21 +137,20 @@ namespace NotiX.Controllers
                     // e, existe a pasta 'Imagens'?
                     if (!Directory.Exists(localImagem))
                     {
-                        Directory.CreateDirectory(localImagem);
-                    }
+                        Directory.CreateDirectory(localImagem); // cria a pasta Imagens se não existir
+					}
                     foreach (KeyValuePair<Fotos, IFormFile> i in mapFotos)
                     {
-                        localImagem = Path.Combine(localImagem, i.Key.Nome);
-                        using var stream = new FileStream(localImagem, FileMode.Create);
-                        await i.Value.CopyToAsync(stream);
-                        localImagem = _webHostEnvironment.WebRootPath;
-                        localImagem = Path.Combine(localImagem, "Imagens");
-                    }
+                        localImagem = Path.Combine(localImagem, i.Key.Nome); // caminho completo da imagem
+						using var stream = new FileStream(localImagem, FileMode.Create); // cria o ficheiro no disco
+						await i.Value.CopyToAsync(stream); 
+						localImagem = _webHostEnvironment.WebRootPath; 
+						localImagem = Path.Combine(localImagem, "Imagens"); 
+					}
                 }
                 // redireciona o utilizador para a página Index
                 return RedirectToAction(nameof(Index));
             }
-            // se cheguei aqui é pq alguma coisa correu mal
             // volta à View com os dados fornecidos pela View
             return View(noticia);
         }
@@ -173,13 +171,14 @@ namespace NotiX.Controllers
             {
                 return NotFound();
             }
-            var fotos = await _context.Fotos.Where(f => !noticias.ListaFotos.Select(r => r.Id).Contains(f.Id)).ToListAsync();
-            TempData["fotos"] = fotos;
-            ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
-            NoticiasFotosViewMo noti = new NoticiasFotosViewMo();
-            noti.Noticias = noticias;
+            var fotos = await _context.Fotos.Where(f => !noticias.ListaFotos.Select(r => r.Id).Contains(f.Id)).ToListAsync(); // Seleciona fotos que não estão associadas à notícia atual
+			TempData["fotos"] = fotos;  
+			ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
+			NoticiasFotosViewMo noti = new() {
+				Noticias = noticias // Atribui a notícia carregada ao ViewModel
+			};
 
-            return View(noti);
+			return View(noti);
         }
 
         // POST: Noticias/Edit/5
@@ -199,7 +198,7 @@ namespace NotiX.Controllers
             //vars. auxiliares
             string nomeImagem = "";
             bool haImagem = false;
-            Dictionary<Fotos, IFormFile> mapFotos = new Dictionary<Fotos, IFormFile>();
+            Dictionary<Fotos, IFormFile> mapFotos = [];
             //verifica se existe ficheiro
             if (Fotos != null)
             {
@@ -215,12 +214,12 @@ namespace NotiX.Controllers
                     }
                     else
                     {
-                        nomeImagem = $"{noticia.Nome}_{fotoIndex++}";
+						nomeImagem = $"{noticia.Nome}_{fotoIndex++}";
                         // obter a extensão do nome do ficheiro
                         string extensao = Path.GetExtension(foto.FileName);
                         nomeImagem += extensao;
-
-                        Fotos f = new Fotos(nomeImagem);
+                        
+                        Fotos f = new(nomeImagem);
                         noticia.Noticias.ListaFotos.Add(f);
                         mapFotos.Add(f, foto);
                         haImagem = true;
@@ -258,12 +257,12 @@ namespace NotiX.Controllers
                     }
                     foreach (KeyValuePair<Fotos, IFormFile> i in mapFotos)
                     {
-                        localImagem = Path.Combine(localImagem, i.Key.Nome);
-                        using var stream = new FileStream(localImagem, FileMode.Create);
-                        await i.Value.CopyToAsync(stream);
-                        localImagem = _webHostEnvironment.WebRootPath;
-                        localImagem = Path.Combine(localImagem, "Imagens");
-                    }
+                        localImagem = Path.Combine(localImagem, i.Key.Nome); // caminho completo da imagem
+						using var stream = new FileStream(localImagem, FileMode.Create); // cria o ficheiro no disco
+						await i.Value.CopyToAsync(stream); // copia o conteúdo do ficheiro para o disco
+						localImagem = _webHostEnvironment.WebRootPath; // volta ao caminho raiz do servidor
+						localImagem = Path.Combine(localImagem, "Imagens");
+					}
                 }
                 TempData["atualizado"] = "Noticia " + n.Titulo + " atualizada com sucesso!";
                 // redireciona o utilizador para a página Index
@@ -285,7 +284,7 @@ namespace NotiX.Controllers
 
                 // Remover a imagem da lista de fotos da notícia
                 var noticia = await _context.Noticias.Include(n => n.ListaFotos).FirstOrDefaultAsync(n => n.Id == noticiaId);
-                if (noticia != null)
+				if (noticia != null)
                 {
                     noticia.ListaFotos.Remove(foto);
                 }

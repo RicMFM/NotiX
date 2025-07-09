@@ -36,14 +36,13 @@
     </dl>
     
 </div>
-<div>
+<div class="row">
     @foreach (var foto in @Model.ListaFotos)
     {
-        <tr>
-            <td>
+        <div class="col-md-2 col-sm-4 col-6 text-center mb-4">
                 <img src="@Url.Content("~/Imagens/" + foto.Nome)" alt="Foto" style="max-height: 100px;" />
-            </td>
-        </tr>
+                <p >@foto.Nome</p>
+        </div>
     }
 </div>
 <br/>
@@ -52,7 +51,23 @@
         var referer = Context.Request.Headers["Referer"].ToString();
         var voltarUrl = string.IsNullOrEmpty(referer) ? Url.Action("Index", "Home") : referer;
     }
-    <a href="@voltarUrl" class="btn btn-danger">
-        <i class="bi bi-arrow-left"></i> Voltar
-    </a>
+    <div class="d-flex gap-2 mt-3">
+        <a href="@voltarUrl" class="btn btn-danger">
+            <i class="bi bi-arrow-left"></i> Voltar
+        </a>
+
+        @if (User.Identity.IsAuthenticated) {
+            <form asp-action="Edit" method="get" asp-route-id="@Model.Id">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Editar
+                </button>
+            </form>
+
+            <form asp-action="Delete" method="get" asp-route-id="@Model.Id">
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash"></i> Eliminar
+                </button>
+            </form>
+        }
+        </div>
 </div>
