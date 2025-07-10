@@ -44,7 +44,7 @@
             <br />
             <div class="form-group">
                 Adicionar Fotos
-                <input multiple type="file" name="ListaFotos" accept=".png,.jpg,.jpeg" class="form-control" />
+                <input type="file" name="ListaFotos" accept=".png,.jpg,.jpeg" class="form-control" />
                 <span asp-validation-for="Noticias.ListaFotos" class="text-danger"></span>
             </div>
             <br />
@@ -93,6 +93,10 @@
                     <tr>
                         <td>
                             <img src="@Url.Content("~/Imagens/" + foto.Nome)" alt="Foto" style="max-height: 100px;" />
+                            <p>@foto.Nome</p>
+                        </td>
+                        <td>
+
                         </td>
                         <td>
                             <form asp-action="DeleteFoto" method="post" class="d-inline">

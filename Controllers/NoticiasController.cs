@@ -83,80 +83,76 @@ namespace NotiX.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(NoticiasFotosViewMo noticia, IFormFile ListaFotos)
         {
-            
 
-            if (ModelState.IsValid)
-            {
 
-				ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
-				Noticias n = noticia.Noticias;
-				_context.Add(n);
-				await _context.SaveChangesAsync();
-
-				//Recebe ficheiro do utilizador
-				var Fotos = HttpContext.Request.Form.Files;
-				string msgErro = "";
-				//vars. auxiliares
+			if (ModelState.IsValid) {
+				// Variáveis auxiliares
 				string nomeImagem = "";
 				bool haImagem = false;
-				Dictionary<Fotos, IFormFile> mapFotos = [];
-				//verifica se existe ficheiro
-				if (Fotos != null) {
-					int fotoIndex = 0;
+				// Verifica se foi fornecido um ficheiro (obrigatório para uma única foto)
+				if (ListaFotos == null) {
+					ModelState.AddModelError("", "O fornecimento de uma imagem é obrigatório.");
+					ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
+					return View(noticia);
+				}
+				else {
+					// Verifica se o ficheiro é do tipo PNG ou JPG
+					if (!(ListaFotos.ContentType == "image/png" || ListaFotos.ContentType == "image/jpeg")) {
+						ModelState.AddModelError("", "A imagem tem de ser do tipo PNG ou JPG.");
+						ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
+						return View(noticia);
+					}
+					else {
+						// Marca que há uma imagem válida
+						haImagem = true;
+						// Obtém a extensão da imagem
+						string extensao = Path.GetExtension(ListaFotos.FileName);
+						// Gera nome único usando o Nome do ViewModel + timestamp
+						string timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
 
-					foreach (var foto in Fotos) {
-						if (!(foto.ContentType == "image/png" || foto.ContentType == "image/jpeg")) {
-							msgErro = "A imagem tem de ser do tipo png ou jpeg!"; // mensagem de erro a ser mostrada na View
-							ModelState.AddModelError("Foto", msgErro); // Adiciona um erro ao modelo de estado para o campo Foto
-
-						}
-						else {
-							nomeImagem = $"{noticia.Nome}_{n.Id}_{fotoIndex++}"; //Nome da Notícia + Id da Notícia + índice da 
-							string extensao = Path.GetExtension(foto.FileName); // obter a extensão do nome do ficheiro
-							nomeImagem += extensao; // acrescentar a extensão ao nome da imagem
-
-							Fotos f = new(nomeImagem); //Cria uma nova instância de Fotos com o nome da imagem
-							n.ListaFotos.Add(f); // Adiciona a foto à lista de fotos da notícia
-							mapFotos.Add(f, foto); // Adiciona a foto e o ficheiro ao dicionário
-							haImagem = true; // Indica que há pelo menos uma imagem
-						}
+						// Usa o Nome fornecido no ViewModel
+						nomeImagem = $"{noticia.Nome}_{timestamp}{extensao}";
 					}
 				}
-
-				await _context.SaveChangesAsync();
-
-				// se há ficheiro de imagem,
-				// vamos guardar no disco rígido do servidor
-				if (haImagem)
-                {
-                    // determinar onde se vai guardar a imagem
-                    string localImagem = _webHostEnvironment.WebRootPath;
-                    // já sei o caminho até à pasta wwwroot
-                    // especifico onde vou guardar a imagem
-                    localImagem = Path.Combine(localImagem, "Imagens");
-                    // e, existe a pasta 'Imagens'?
-                    if (!Directory.Exists(localImagem))
-                    {
-                        Directory.CreateDirectory(localImagem); // cria a pasta Imagens se não existir
+				// Adiciona a nova notícia à base de dados
+				Noticias n = noticia.Noticias;
+				_context.Add(n);
+				await _context.SaveChangesAsync(); // Salva para obter o Id da notícia
+												   // Cria e adiciona a foto associada à notícia
+				if (haImagem) {
+					// Cria o objeto Fotos
+					Fotos novaFoto = new Fotos {
+						Nome = nomeImagem
+					};
+					// Adiciona a notícia à lista de notícias da foto (relação many-to-many)
+					novaFoto.ListaNoticias.Add(n);
+					// Adiciona a foto à base de dados
+					_context.Add(novaFoto);
+					await _context.SaveChangesAsync();
+					// Guarda a imagem no disco rígido do servidor
+					string localImagem = _webHostEnvironment.WebRootPath;
+					localImagem = Path.Combine(localImagem, "Imagens");
+					// Verifica se a pasta 'Imagens' existe
+					if (!Directory.Exists(localImagem)) {
+						Directory.CreateDirectory(localImagem);
 					}
-                    foreach (KeyValuePair<Fotos, IFormFile> i in mapFotos)
-                    {
-                        localImagem = Path.Combine(localImagem, i.Key.Nome); // caminho completo da imagem
-						using var stream = new FileStream(localImagem, FileMode.Create); // cria o ficheiro no disco
-						await i.Value.CopyToAsync(stream); 
-						localImagem = _webHostEnvironment.WebRootPath; 
-						localImagem = Path.Combine(localImagem, "Imagens"); 
-					}
-                }
-                // redireciona o utilizador para a página Index
-                return RedirectToAction(nameof(Index));
-            }
-            // volta à View com os dados fornecidos pela View
-            return View(noticia);
-        }
+					// Caminho completo da imagem
+					string caminhoCompleto = Path.Combine(localImagem, nomeImagem);
 
-        // GET: Noticias/Edit/5
-        [HttpGet]
+					// Cria o ficheiro no disco
+					using var stream = new FileStream(caminhoCompleto, FileMode.Create);
+					await ListaFotos.CopyToAsync(stream);
+				}
+				// Redireciona o utilizador para a página Index
+				return RedirectToAction(nameof(Index));
+			}
+			// Se há erros de validação, volta à View com os dados fornecidos
+			ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
+			return View(noticia);
+		}
+
+		// GET: Noticias/Edit/5
+		[HttpGet]
         public async Task<IActionResult> Edit(int? id, List<string> ListaNotFotos)
         {
 
@@ -214,7 +210,10 @@ namespace NotiX.Controllers
                     }
                     else
                     {
-						nomeImagem = $"{noticia.Nome}_{fotoIndex++}";
+						// Gera nome único usando o nome original + timestamp
+						string timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
+						// Cria o nome da imagem
+						nomeImagem = $"{noticia.Nome}_{timestamp}";
                         // obter a extensão do nome do ficheiro
                         string extensao = Path.GetExtension(foto.FileName);
                         nomeImagem += extensao;

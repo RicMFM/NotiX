@@ -43,12 +43,18 @@ namespace NotiX.Data
                 new IdentityUserRole<string> { UserId = "admin", RoleId = "a" });
 
 
+			// Criar categorias
+			builder.Entity<Categorias>().HasData(
+				new Categorias { Id = 1, Categoria = "Música" },
+				new Categorias { Id = 2, Categoria = "Cultura" },
+				new Categorias { Id = 3, Categoria = "Tecnologia" }
+			);
 		}
 
-        /// <summary>
-        /// tabela Utilizadores
-        /// </summary>
-        public DbSet<Utilizadores> Utilizadores { get; set; }
+		/// <summary>
+		/// tabela Utilizadores
+		/// </summary>
+		public DbSet<Utilizadores> Utilizadores { get; set; }
 		/// <summary>
 		/// tabela Fotos
 		/// </summary>

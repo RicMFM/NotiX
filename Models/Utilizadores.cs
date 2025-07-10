@@ -42,7 +42,13 @@ namespace NotiX.Models
         /// </summary>
         [DataType(DataType.Date)] // informa a View de como deve tratar este atributo
         [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd-MM-yyyy}")]
-        public DateOnly? DataNascimento { get; set; }
+
+
+		///<summary>
+		///Data de Nascimento do utilizador
+		/// </summary>
+		[Display(Name = "Data de nascimento")]
+		public DateOnly? DataNascimento { get; set; }
 
         /// <summary>
         /// Data de registo do utilizador

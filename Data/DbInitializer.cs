@@ -26,21 +26,7 @@ namespace NotiX.Data
             // var auxiliar
             bool haAdicao = false;
 
-
-
-            // Se não houver Categorias, cria-as
-            var categorias = Array.Empty<Categorias>();
-            if (!dbContext.Categorias.Any())
-            {
-                categorias = [
-                   new Categorias{ Categoria="Musica"},
-               new Categorias{ Categoria="Tecnologia"},
-               new Categorias{ Categoria="Cultura"}
-                //adicionar outros cursos
-                ];
-                await dbContext.Categorias.AddRangeAsync(categorias);
-                haAdicao = true;
-            }
+            var categorias = dbContext.Categorias.ToList();
 
 			// Fotos pré-definidas
 			var foto1 = new Fotos("foto1.jpg");
@@ -51,9 +37,9 @@ namespace NotiX.Data
 			// Se não houver Notícias, cria-as
 			if (!dbContext.Noticias.Any()) {
 				noticias = [
-					new Noticias { Titulo = "Noticia 1", Texto = "Descrição da Notícia 1", DataEscrita = DateTime.Now, CategoriaFK = categorias[0].Id, ListaFotos = [foto1] },
-					new Noticias { Titulo = "Noticia 2", Texto = "Descrição da Notícia 2", DataEscrita = DateTime.Now, CategoriaFK = categorias[1].Id, ListaFotos = [foto2]},
-					new Noticias { Titulo = "Noticia 3", Texto = "Descrição da Notícia 3", DataEscrita = DateTime.Now, CategoriaFK = categorias[2].Id, ListaFotos = [foto3]}
+					new Noticias { Titulo = "Noticia 1", Texto = "Descrição da Notícia 1", DataEscrita = DateTime.Now, Categoria = categorias[0], ListaFotos = [foto1] },
+					new Noticias { Titulo = "Noticia 2", Texto = "Descrição da Notícia 2", DataEscrita = DateTime.Now, Categoria = categorias[1], ListaFotos = [foto2]},
+					new Noticias { Titulo = "Noticia 3", Texto = "Descrição da Notícia 3", DataEscrita = DateTime.Now, Categoria = categorias[2], ListaFotos = [foto3]}
 				];
 				await dbContext.Noticias.AddRangeAsync(noticias);
 				haAdicao = true;

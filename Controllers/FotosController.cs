@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using NotiX.Data;
 using NotiX.Models;
+using NuGet.Packaging.Signing;
 
 namespace NotiX.Controllers
 {
@@ -69,91 +70,72 @@ namespace NotiX.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Nome")] Fotos fotos, IFormFile Foto)
         {// [Bind] - anotação para indicar que dados, vindos da View,
-         //          devem ser 'aproveitados'
+		 //          devem ser 'aproveitados'
 
-            // vars. auxiliares
-            string nomeImagem = "";
-            bool haImagem = false;
+			// vars. auxiliares
+			// Variáveis auxiliares
+			string nomeImagem = "";
+			bool haImagem = false;
 
-            // há ficheiro?
-            if (Foto == null)
-            {
-                ModelState.AddModelError("",
-                   "O fornecimento de um Logótipo é obrigatório!");
-                return View(fotos);
-            }
-            else
-            {
-                // há ficheiro, mas é imagem?
-                if (!(Foto.ContentType == "image/png" ||
-                       Foto.ContentType == "image/jpeg")
-                   )
-                {
-                    ModelState.AddModelError("",
-                   "Tem de fornecer para o Logótipo um ficheiro PNG ou JPG!");
-                    return View(fotos);
-                }
-                else
-                {
-                    // há ficheiro, e é uma imagem válida
-                    haImagem = true;
-                    // obter o nome a atribuir à imagem
-                    nomeImagem = fotos.Nome;
-                    // obter a extensão do nome do ficheiro
-                    string extensao = Path.GetExtension(Foto.FileName);
-                    // adicionar a extensão ao nome da imagem
-                    nomeImagem += extensao;
-                    // adicionar o nome do ficheiro ao objeto que
-                    // vem do browser
-                    fotos.Nome = nomeImagem;
-                }
-            }
+			// Verifica se foi fornecido um ficheiro
+			if (Foto == null) {
+				ModelState.AddModelError("", "O fornecimento de uma imagem é obrigatório.");
+				return View(fotos);
+			}
+			else {
+				// Verifica se o ficheiro é do tipo PNG ou JPG
+				if (!(Foto.ContentType == "image/png" || Foto.ContentType == "image/jpeg")) {
+					ModelState.AddModelError("", "A imagem tem de ser do tipo PNG ou JPG.");
+					return View(fotos);
+				}
+				else {
+					if (fotos != null) {
+						// Marca que há uma imagem válida
+						haImagem = true;
 
-            // avalia se os dados que chegam da View
-            // estão de acordo com o Model
-            if (ModelState.IsValid)
-            {
-                // adiciona os dados vindos da View à BD
-                _context.Add(fotos);
-                // efetua COMMIT na BD
-                await _context.SaveChangesAsync();
+                        // Obtem a extensão da imagem
+                        string extensao = Path.GetExtension(Foto.FileName);
 
-                // se há ficheiro de imagem,
-                // vamos guardar no disco rígido do servidor
-                if (haImagem)
-                {
-                    // determinar onde se vai guardar a imagem
-                    string Imagens =
-                       _webHostEnvironment.WebRootPath;
-                    // já sei o caminho até à pasta wwwroot
-                    // especifico onde vou guardar a imagem
-                    Imagens =
-                       Path.Combine(Imagens, "Imagens");
-                    // e, existe a pasta 'Imagens'?
-                    if (!Directory.Exists(Imagens))
-                    {
-                        Directory.CreateDirectory(Imagens);
-                    }
-                    // juntar o nome do ficheiro à sua localização
-                    string localImagem =
-                       Path.Combine(Imagens, nomeImagem);
+						// Gera nome único usando o nome original + timestamp
+						string timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
 
-                    // guardar a imagem no disco rigído
-                    using var stream = new FileStream(
-                       localImagem, FileMode.Create
-                       );
-                    await Foto.CopyToAsync(stream);
-                }
+						// Gera um nome único com base em GUID
+						nomeImagem = $"{fotos.Nome}_{timestamp}_{extensao}";
 
+						// Atribui o nome ao modelo
+						fotos.Nome = nomeImagem;
+					}
+				}
+			}
 
-                // redireciona o utilizador para a página Index
-                return RedirectToAction(nameof(Index));
-            }
+			// Verifica se o modelo é válido
+			if (ModelState.IsValid) {
+				// Adiciona à base de dados
+				_context.Add(fotos);
+				await _context.SaveChangesAsync();
 
-            // se cheguei aqui é pq alguma coisa correu mal :-(
-            // volta à View com os dados fornecidos pela View
-            return View(fotos);
-        }
+				// Se houver imagem válida, guardar no disco
+				if (haImagem) {
+					string caminhoBase = _webHostEnvironment.WebRootPath;
+					string caminhoImagens = Path.Combine(caminhoBase, "Imagens");
+
+					if (!Directory.Exists(caminhoImagens)) {
+						Directory.CreateDirectory(caminhoImagens);
+					}
+
+					string caminhoCompletoImagem = Path.Combine(caminhoImagens, nomeImagem);
+
+					using (var stream = new FileStream(caminhoCompletoImagem, FileMode.Create)) {
+						await Foto.CopyToAsync(stream);
+					}
+				}
+
+				return RedirectToAction(nameof(Index));
+			}
+
+			// Se algo falhar, devolve à view original
+			return View(fotos);
+		}
 
         // GET: Fotos/Edit/5
         public async Task<IActionResult> Edit(int? id)

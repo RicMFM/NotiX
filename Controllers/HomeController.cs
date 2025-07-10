@@ -44,7 +44,7 @@ namespace NotiX.Controllers {
 			var noticias = await query 
 				.OrderByDescending(n => n.DataEscrita) // Ordenar as notícias pela data de Criação, da mais recente para a mais antiga
 				.Skip((pagina - 1) * pageSize) // Saltar as notícias das páginas anteriores (exemplo: página 2 com 6 resultados por página é igual a ter skip(6) que é igual a saltar as primeiras 6 notícias )
-				.Take(pageSize) // 
+				.Take(pageSize) // Retorna as notícias da página atual (exemplo: na página 2 retorna as notícias 7,8,9,10,11,12)
 				.ToListAsync();
 
 			var viewModel = noticias.Select(n => new NoticiasFotosViewMo {
