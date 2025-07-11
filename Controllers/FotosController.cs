@@ -79,7 +79,7 @@ namespace NotiX.Controllers
             if (Foto == null)
             {
                 ModelState.AddModelError("",
-                   "O fornecimento de um Logótipo é obrigatório!");
+                   "O fornecimento de uma Imagem é obrigatório!");
                 return View(fotos);
             }
             else
@@ -90,7 +90,7 @@ namespace NotiX.Controllers
                    )
                 {
                     ModelState.AddModelError("",
-                   "Tem de fornecer para o Logótipo um ficheiro PNG ou JPG!");
+                   "Tem de fornecer para a Foto um ficheiro PNG ou JPG!");
                     return View(fotos);
                 }
                 else
