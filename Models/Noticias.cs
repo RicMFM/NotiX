@@ -30,14 +30,15 @@ namespace NotiX.Models
         /// </summary>
         public string Texto { get; set; }
 
-        /// <summary>
-        /// Data de Edição da noticia
-        /// </summary>
-        public DateTime? DataEdicao { get; set; }
+		/// <summary>
+		/// Data de Edição da noticia
+		/// </summary>
+		[Display(Name = "Data de Edição")]
+		public DateTime? DataEdicao { get; set; }
         /// <summary>
         /// Data em que a noticia foi publicada
         /// </summary>
-        [Display(Name="Data de criação")]
+        [Display(Name="Data de Criação")]
         public DateTime DataEscrita { get; set; }
 
         /// <summary>

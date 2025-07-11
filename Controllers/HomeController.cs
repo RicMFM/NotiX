@@ -61,6 +61,10 @@ namespace NotiX.Controllers {
 			return View(viewModel);
 		}
 
+		public IActionResult SobreNos() {
+			return View();
+		}
+
 		public IActionResult Privacy() {
 			return View();
 		}
