@@ -1,5 +1,6 @@
 using NotiX.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace NotiX.Data
@@ -21,15 +22,17 @@ namespace NotiX.Data
 
 
             ArgumentNullException.ThrowIfNull(dbContext, nameof(dbContext));
-            dbContext.Database.EnsureCreated();
+            dbContext.Database.Migrate();
 
             // var auxiliar
             bool haAdicao = false;
 
             var categorias = dbContext.Categorias.ToList();
+            if (categorias.Count < 3)
+                throw new InvalidOperationException("Categorias não foram populadas.");
 
-			// Fotos pré-definidas
-			var foto1 = new Fotos("foto1.jpg");
+            // Fotos pré-definidas
+            var foto1 = new Fotos("foto1.jpg");
 			var foto2 = new Fotos("foto2.jpg");
 			var foto3 = new Fotos("foto3.jpg");
 

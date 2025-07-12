@@ -13,7 +13,7 @@ namespace NotiX.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "admin")]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public class CategoriasAuthController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -32,7 +32,9 @@ namespace NotiX.Controllers.API
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Categorias>>> GetCategorias()
         {
-            return await _context.Categorias.ToListAsync();
+            return await _context.Categorias
+                                .Include(c => c.ListaNoticias)
+                                .ToListAsync();
         }
 
         /// <summary>
