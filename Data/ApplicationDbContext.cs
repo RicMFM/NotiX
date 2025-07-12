@@ -38,9 +38,28 @@ namespace NotiX.Data
                 }
             );
 
-            // Associar utilizador à role Admin
-            builder.Entity<IdentityUserRole<string>>().HasData(
+			// Criar utilizador funcionário
+			builder.Entity<IdentityUser>().HasData(
+				new IdentityUser {
+					Id = "funcionario",
+					UserName = "func@func.pt",
+					NormalizedUserName = "FUNC@FUNC.PT",
+					Email = "func@func.pt",
+					NormalizedEmail = "FUNC@FUNC.PT",
+					EmailConfirmed = true,
+					SecurityStamp = Guid.NewGuid().ToString(),
+					ConcurrencyStamp = Guid.NewGuid().ToString(),
+					PasswordHash = hasher.HashPassword(null, "*aA1234567")
+				}
+			);
+
+			// Associar utilizador à role Admin
+			builder.Entity<IdentityUserRole<string>>().HasData(
                 new IdentityUserRole<string> { UserId = "admin", RoleId = "a" });
+
+			// Associar utilizador à role Funcionario
+			builder.Entity<IdentityUserRole<string>>().HasData(
+				new IdentityUserRole<string> { UserId = "funcionario", RoleId = "f" });
 
 
 			// Criar categorias
