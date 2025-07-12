@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using NotiX.Data;
 using NotiX.Models;
+using NotiX.ViewModels;
 
 namespace NotiX.Controllers.API
 {
@@ -32,9 +33,22 @@ namespace NotiX.Controllers.API
         [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Categorias>>> GetCategorias()
         {
-            return await _context.Categorias
-                                .Include(c => c.ListaNoticias)
-                                .ToListAsync();
+            var resultado = await _context.Categorias
+                                    .Select(c => new CategoriaComNoticiasDTO {
+                                        Id = c.Id,
+                                        Categoria = c.Categoria,
+                                        Noticias = c.ListaNoticias
+                                                    .Select(n => new NoticiaDTO
+                                                        {
+                                                            Id = n.Id,
+                                                            Titulo = n.Titulo,
+                                                            Texto = n.Texto,
+                                                            DataEscrita = n.DataEscrita
+                                                         }).ToList()
+                                    })
+                                    .ToListAsync();
+
+            return Ok(resultado);
         }
 
         /// <summary>
@@ -44,16 +58,19 @@ namespace NotiX.Controllers.API
         /// <param name="id">idenrtificador da categoria pretendida</param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        public async Task<ActionResult<Categorias>> GetCategorias(int id)
-        {
-            var categorias = await _context.Categorias.FindAsync(id);
+        public async Task<ActionResult<CategoriasDTO>> GetCategoria(int id) {
+            var categoria = await _context.Categorias
+                                    .Where(c => c.Id == id)
+                                    .Select(c=> new CategoriasDTO {
+                                        Categoria = c.Categoria,
+                                    }).FirstOrDefaultAsync();
 
-            if (categorias == null)
+            if (categoria == null)
             {
                 return NotFound();
             }
 
-            return categorias;
+            return categoria;
         }
 
         // PUT: api/Categorias/5
@@ -118,13 +135,16 @@ namespace NotiX.Controllers.API
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCategorias(int id)
         {
-            var categorias = await _context.Categorias.FindAsync(id);
-            if (categorias == null)
+            var categoria = await _context.Categorias
+                              .Where(c => c.Id == id)
+                              .FirstOrDefaultAsync();
+
+            if (categoria == null)
             {
                 return NotFound();
             }
 
-            _context.Categorias.Remove(categorias);
+            _context.Categorias.Remove(categoria);
             await _context.SaveChangesAsync();
 
             return NoContent();
