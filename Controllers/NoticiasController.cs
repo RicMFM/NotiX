@@ -22,47 +22,48 @@ namespace NotiX.Controllers
     public class NoticiasController : Controller
     {
         /// <summary>
-        /// referência à BD do projeto
+        /// referência à base de dados
         /// </summary>
         private readonly ApplicationDbContext _context;
 
-        /// <summary>
-        /// objeto que contém os dados referentes ao ambiente 
-        /// do Servidor
-        /// </summary>
-        private readonly IWebHostEnvironment _webHostEnvironment;
-        public NoticiasController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
+		/// <summary>
+		/// objeto que contém os dados referentes ao ambiente do Servidor, por exemplo, caminhos físicos
+		/// </summary>
+		private readonly IWebHostEnvironment _webHostEnvironment;
+
+		/// Construtor da classe do NoticiasController
+		public NoticiasController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
             _webHostEnvironment = webHostEnvironment;
         }
 
 
-        // GET: Noticias
-        /// <summary>
-        /// mostra todos os cursos existentes na BD
-        /// </summary>
-        /// <returns></returns>
-        [AllowAnonymous]// esta anotação isenta da obrigação
-                        // do utilizador estar autenticado
-        public async Task<IActionResult> Index()
-        {
+		// GET: Noticias
+		// esta anotação isenta da obrigação do utilizador estar autenticado
+		[AllowAnonymous]
+		public IActionResult Index() {
 			return RedirectToAction("Index", "Home");
 		}
 
-        // GET: Noticias/Details/5
-        [AllowAnonymous]
+		// GET: Noticias/Details/5
+		[AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+			// verifica se o id da notícia é nulo e retorna NotFound se for o caso
+			if (id == null)
             {
                 return NotFound();
             }
-            var noticias = await _context.Noticias
+
+			// procura a notícia na base de dados
+			var noticias = await _context.Noticias
                                     .Include(f => f.ListaFotos)
                                     .Include(c => c.Categoria)
                                     .FirstOrDefaultAsync(m => m.Id == id);
-            if (noticias == null)
+
+			// verifica se a noticia não foi encontrada e retorna NotFound se for o caso
+			if (noticias == null)
             {
                 return NotFound();
             }
@@ -74,7 +75,8 @@ namespace NotiX.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
+			// Guarda a lista de categorias na ViewData para ser usada no dropdown
+			ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
             NoticiasFotosViewMo noti = new();
             return View(noti);
         }
@@ -92,8 +94,9 @@ namespace NotiX.Controllers
 				// Variáveis auxiliares
 				string nomeImagem = "";
 				bool haImagem = false;
-				// Verifica se foi fornecido um ficheiro (obrigatório para uma única foto)
+				// Verifica se foi fornecido um ficheiro
 				if (ListaFotos == null) {
+					// Adiciona uma mensagem de erro se não foi fornecido um ficheiro
 					ModelState.AddModelError("", "O fornecimento de uma imagem é obrigatório.");
 					ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
 					return View(noticia);
@@ -108,8 +111,10 @@ namespace NotiX.Controllers
 					else {
 						// Marca que há uma imagem válida
 						haImagem = true;
+
 						// Obtém a extensão da imagem
 						string extensao = Path.GetExtension(ListaFotos.FileName);
+
 						// Gera nome único usando o Nome do ViewModel + timestamp
 						string timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
 
@@ -120,29 +125,34 @@ namespace NotiX.Controllers
 				// Adiciona a nova notícia à base de dados
 				Noticias n = noticia.Noticias;
 				_context.Add(n);
-				await _context.SaveChangesAsync(); // Salva para obter o Id da notícia
-												   // Cria e adiciona a foto associada à notícia
+				await _context.SaveChangesAsync(); 
+												   
 				if (haImagem) {
 					// Cria o objeto Fotos
 					Fotos novaFoto = new Fotos {
 						Nome = nomeImagem
 					};
+
 					// Adiciona a notícia à lista de notícias da foto (relação many-to-many)
 					novaFoto.ListaNoticias.Add(n);
+
 					// Adiciona a foto à base de dados
 					_context.Add(novaFoto);
 					await _context.SaveChangesAsync();
-					// Guarda a imagem no disco rígido do servidor
+
+					// Define onde se vai guardar a imagem
 					string localImagem = _webHostEnvironment.WebRootPath;
 					localImagem = Path.Combine(localImagem, "Imagens");
-					// Verifica se a pasta 'Imagens' existe
+
+					// Verifica se a pasta 'Imagens' existe e se não existir, cria-a
 					if (!Directory.Exists(localImagem)) {
 						Directory.CreateDirectory(localImagem);
 					}
+
 					// Caminho completo da imagem
 					string caminhoCompleto = Path.Combine(localImagem, nomeImagem);
 
-					// Cria o ficheiro no disco
+					// Cria o ficheiro no servidor
 					using var stream = new FileStream(caminhoCompleto, FileMode.Create);
 					await ListaFotos.CopyToAsync(stream);
 				}
@@ -158,24 +168,35 @@ namespace NotiX.Controllers
 		[HttpGet]
         public async Task<IActionResult> Edit(int? id, List<string> ListaNotFotos)
         {
+			// Guarda a lista de categorias na ViewData para ser usada no dropdown
+			ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
 
-            ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
-            if (id == null)
+			// Verifica se o id da notícia é nulo e retorna NotFound se for o caso
+			if (id == null)
             {
                 return NotFound();
             }
+
             //lista de noticias
             var noticias = await _context.Noticias
                                             .Include(f => f.ListaFotos)
                                             .Include(f => f.Categoria)
                                             .Where(f => f.Id == id)
                                             .FirstAsync();
-            if (noticias == null)
+
+			// Verifica se a notícia não foi encontrada e retorna NotFound se for o caso
+			if (noticias == null)
             {
                 return NotFound();
             }
-            var fotos = await _context.Fotos.Where(f => !noticias.ListaFotos.Select(r => r.Id).Contains(f.Id)).ToListAsync(); // Seleciona fotos que não estão associadas à notícia atual
-			TempData["fotos"] = fotos;  
+
+			// Seleciona fotos que não estão associadas à notícia atual
+			var fotos = await _context.Fotos.Where(f => !noticias.ListaFotos.Select(r => r.Id).Contains(f.Id)).ToListAsync();
+
+			// Adiciona as fotos à TempData para serem usadas na View
+			TempData["fotos"] = fotos;
+
+			// Guarda a lista de categorias na ViewData para ser usada no dropdown
 			ViewData["CategoriaFK"] = await _context.Categorias.ToListAsync();
 			NoticiasFotosViewMo noti = new() {
 				Noticias = noticias // Atribui a notícia carregada ao ViewModel
@@ -197,16 +218,16 @@ namespace NotiX.Controllers
 
             //Recebe ficheiro do utilizador
             var Fotos = HttpContext.Request.Form.Files;
-            string msgErro = "";
-            //vars. auxiliares
-            string nomeImagem = "";
+     
+			//vars. auxiliares
+			string msgErro = "";
+			string nomeImagem = "";
             bool haImagem = false;
             Dictionary<Fotos, IFormFile> mapFotos = [];
+
             //verifica se existe ficheiro
             if (Fotos != null)
             {
-                int fotoIndex = 0;
-
                 foreach (var foto in Fotos)
                 {
                     if (!(foto.ContentType == "image/png" || foto.ContentType == "image/jpeg"))
@@ -217,15 +238,18 @@ namespace NotiX.Controllers
                     }
                     else
                     {
-						// Gera nome único usando o nome original + timestamp
+						// Cria o timestamp para garantir que o nome da imagem é único
 						string timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
-						// Cria o nome da imagem
+
+						// Gera o nome da imagem usando o Nome do ViewModel + timestamp
 						nomeImagem = $"{noticia.Nome}_{timestamp}";
+
                         // obter a extensão do nome do ficheiro
                         string extensao = Path.GetExtension(foto.FileName);
                         nomeImagem += extensao;
-                        
-                        Fotos f = new(nomeImagem);
+
+						// Cria o objeto Fotos, associa o nome da imagem e adiciona à lista de fotos da notícia
+						Fotos f = new(nomeImagem);
                         noticia.Noticias.ListaFotos.Add(f);
                         mapFotos.Add(f, foto);
                         haImagem = true;
@@ -233,31 +257,36 @@ namespace NotiX.Controllers
                 }
             }
 
-            if (ModelState.IsValid)
+			// Verifica se o moelo é válido
+			if (ModelState.IsValid)
             {
-                ICollection<Fotos> f = await _context.Fotos.Where(f => ListaNotFotos.Contains(f.Nome)).ToListAsync();
+				// Guarda todas as fotos da base de dados cujo nome está presente em ListaNotFotos
+				ICollection<Fotos> f = await _context.Fotos.Where(f => ListaNotFotos.Contains(f.Nome)).ToListAsync();
                 Noticias n = noticia.Noticias;
                 foreach (var g in f)
                 {
                     n.ListaFotos.Add(g);
                 }
                 _context.Update(n);
+                
                 //mantém a data de criação original da noticia
                 _context.Entry(n).Property(n => n.DataEscrita).IsModified = false;
+
                 // Atribui a data e hora atual ao atributo DataEdicao
                 n.DataEdicao = DateTime.Now;
                 await _context.SaveChangesAsync();
-                // se há ficheiro de imagem,
-                // vamos guardar no disco rígido do servidor
+
+                // se há ficheiro de imagem,vamos guardar no servidor
                 if (haImagem)
                 {
-                    // determinar onde se vai guardar a imagem
-                    string localImagem = _webHostEnvironment.WebRootPath;
-                    // já sei o caminho até à pasta wwwroot
-                    // especifico onde vou guardar a imagem
-                    localImagem = Path.Combine(localImagem, "Imagens");
-                    // e, existe a pasta 'Imagens'?
-                    if (!Directory.Exists(localImagem))
+					// Especifica o caminho onde as imagens serão guardadas
+					string localImagem = _webHostEnvironment.WebRootPath;
+
+					// Especifica o local onde as imagens serão guardadas (wwwroot/Imagens)
+					localImagem = Path.Combine(localImagem, "Imagens");
+
+					// Verifica se a pasta 'Imagens' existe e se não existir, cria-a
+					if (!Directory.Exists(localImagem))
                     {
                         Directory.CreateDirectory(localImagem);
                     }
@@ -270,7 +299,9 @@ namespace NotiX.Controllers
 						localImagem = Path.Combine(localImagem, "Imagens");
 					}
                 }
-                TempData["atualizado"] = "Noticia " + n.Titulo + " atualizada com sucesso!";
+				// Define mensagem de sucesso na atualização da notícia
+				TempData["atualizado"] = "Noticia " + n.Titulo + " atualizada com sucesso!";
+
                 // redireciona o utilizador para a página Index
                 return RedirectToAction(nameof(Edit));
             }
@@ -279,22 +310,26 @@ namespace NotiX.Controllers
             return View(noticia);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> RemoveFoto(int fotoId, int noticiaId)
-        {
-            var foto = await _context.Fotos.FindAsync(fotoId);
-            if (foto != null)
-            {
-                // Caminho da imagem no servidor
-                string caminhoImagem = Path.Combine(_webHostEnvironment.WebRootPath, "Imagens", foto.Nome);
 
-                // Remover a imagem da lista de fotos da notícia
-                var noticia = await _context.Noticias
+		//POST: Noticias/Edit/5
+		//Método para desassociar uma foto de uma notícia
+		[HttpPost]
+        public async Task<IActionResult> DesassociaFoto(int fotoId, int noticiaId)
+        {
+			// Verifica se a foto existe na base de dados
+			var foto = await _context.Fotos.FindAsync(fotoId);
+
+			// Se a foto existir, vamos dessociar a foto da notícia
+			if (foto != null)
+            {
+				// Procura a notícia associada à foto
+				var noticia = await _context.Noticias
                                                 .Include(n => n.ListaFotos)
                                                 .FirstOrDefaultAsync(n => n.Id == noticiaId);
 				if (noticia != null)
                 {
-                    noticia.ListaFotos.Remove(foto);
+					// Desassocia a foto da lista de fotos da notícia através do método Remove da interface ICollection
+					noticia.ListaFotos.Remove(foto);
                 }
                 await _context.SaveChangesAsync();
             }
@@ -303,7 +338,9 @@ namespace NotiX.Controllers
             return RedirectToAction("Edit", new { id = noticiaId });
         }
 
-        [HttpPost]
+		//POST: Noticias/Edit/5
+		//Método para apagar uma foto associada a uma notícia
+		[HttpPost]
         public async Task<IActionResult> DeleteFoto(int fotoId, int noticiaId)
         {
             var foto = await _context.Fotos.FindAsync(fotoId);
@@ -329,16 +366,19 @@ namespace NotiX.Controllers
         }
 
 
-        // GET: Noticias/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+		// GET: Noticias/Delete/5
+		//Método para apagar uma notícia
+		public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var noticias = await _context.Noticias
+			// procura a notícia na base de dados
+			var noticias = await _context.Noticias
                 .FirstOrDefaultAsync(m => m.Id == id);
+
             if (noticias == null)
             {
                 return NotFound();
@@ -361,10 +401,5 @@ namespace NotiX.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
-        private bool NoticiasExists(int id)
-        {
-            return _context.Noticias.Any(e => e.Id == id);
-        }
-    }
+	}
 }

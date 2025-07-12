@@ -14,9 +14,13 @@ namespace NotiX.Controllers
     [Authorize]
     public class UtilizadoresController : Controller
     {
-        private readonly ApplicationDbContext _context;
+		/// <summary>
+		/// Referencia à base de dados
+		/// </summary>
+		private readonly ApplicationDbContext _context;
 
-        public UtilizadoresController(ApplicationDbContext context)
+		// Construtor da classe UtilizadoresController
+		public UtilizadoresController(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -25,7 +29,8 @@ namespace NotiX.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            var g = await _context.Utilizadores.ToListAsync();
+			// Obtém a lista de utilizadores da base de dados
+			var g = await _context.Utilizadores.ToListAsync();
             return View(g);
         }
 
@@ -33,14 +38,18 @@ namespace NotiX.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+			// Verifica se o id do utilizador é nulo, se for o caso, retorna NotFound
+			if (id == null)
             {
                 return NotFound();
             }
 
-            var utilizadores = await _context.Utilizadores
+			// Obtém os detalhes do utilizador com o id fornecido
+			var utilizadores = await _context.Utilizadores
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (utilizadores == null)
+
+			// Verifica se o utilizador foi encontrado, se não, retorna NotFound
+			if (utilizadores == null)
             {
                 return NotFound();
             }
@@ -79,9 +88,11 @@ namespace NotiX.Controllers
             {
                 return NotFound();
             }
+			// Tenta encontrar o utilizador com o id fornecido
+			var utilizadores = await _context.Utilizadores.FindAsync(id);
 
-            var utilizadores = await _context.Utilizadores.FindAsync(id);
-            if (utilizadores == null)
+			// Verifica se o utilizador foi encontrado, se não, retorna NotFound
+			if (utilizadores == null)
             {
                 return NotFound();
             }
@@ -100,14 +111,17 @@ namespace NotiX.Controllers
                 return NotFound();
             }
 
-            if (ModelState.IsValid)
+			// Verifica se o modelo é válido
+			if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(utilizadores);
+					// Atualiza o utilizador na base de dados
+					_context.Update(utilizadores);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+				// Se ocorrer uma exceção de concorrência, verifica se o utilizador ainda existe
+				catch (DbUpdateConcurrencyException)
                 {
                     if (!UtilizadoresExists(utilizadores.Id))
                     {
@@ -118,7 +132,8 @@ namespace NotiX.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+				// Redireciona para a lista de utilizadores após a edição
+				return RedirectToAction(nameof(Index));
             }
             return View(utilizadores);
         }
@@ -130,10 +145,12 @@ namespace NotiX.Controllers
             {
                 return NotFound();
             }
-
-            var utilizadores = await _context.Utilizadores
+			// Tenta encontrar o utilizador com o id fornecido na base de dados
+			var utilizadores = await _context.Utilizadores
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (utilizadores == null)
+
+			// Verifica se o utilizador foi encontrado, se não, retorna NotFound
+			if (utilizadores == null)
             {
                 return NotFound();
             }
@@ -146,10 +163,12 @@ namespace NotiX.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var utilizadores = await _context.Utilizadores.FindAsync(id);
+			// Verifica se o utilizador com o id fornecido existe na base de dados
+			var utilizadores = await _context.Utilizadores.FindAsync(id);
             if (utilizadores != null)
             {
-                _context.Utilizadores.Remove(utilizadores);
+				// Remove o utilizador da base de dados
+				_context.Utilizadores.Remove(utilizadores);
             }
 
             await _context.SaveChangesAsync();

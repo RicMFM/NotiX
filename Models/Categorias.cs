@@ -17,10 +17,11 @@ namespace NotiX.Models
         /// </summary>
         [Key]
         public int Id { get; set; }
-        /// <summary>
-        /// Nome da categoria
-        /// </summary>
-        public string Categoria { get; set; }
+		/// <summary>
+		/// Nome da categoria
+		/// </summary>
+		[Required(ErrorMessage = "O {0} é de preenchimento obrigatório")]
+		public string Categoria { get; set; }
         /// <summary>
         /// Lista de noticias associadas à categoria
         /// </summary>

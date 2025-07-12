@@ -16,14 +16,18 @@ namespace NotiX.Controllers
     [Authorize]
     public class FotosController : Controller
     {
-        private readonly ApplicationDbContext _context;
+		/// <summary>
+		/// referencia a base de dados
+		/// </summary>
+		private readonly ApplicationDbContext _context;
+
         /// <summary>
         /// objeto que contém os dados referentes ao ambiente 
         /// do Servidor
         /// </summary>
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-
+        // Construtor da classe do Fotoscontroller
         public FotosController(ApplicationDbContext context, IWebHostEnvironment webHostEnvironment)
         {
             _context = context;
@@ -77,13 +81,13 @@ namespace NotiX.Controllers
 			string nomeImagem = "";
 			bool haImagem = false;
 
-			// Verifica se foi fornecido um ficheiro
+			// Verifica se foi fornecido um ficheiro e caso não tenha sido, adiciona uma mensagem de erro
 			if (Foto == null) {
 				ModelState.AddModelError("", "O fornecimento de uma imagem é obrigatório.");
 				return View(fotos);
 			}
 			else {
-				// Verifica se o ficheiro é do tipo PNG ou JPG
+				// Verifica se o ficheiro é do tipo PNG ou JPG e caso não seja , adiciona uma mensagem de erro
 				if (!(Foto.ContentType == "image/png" || Foto.ContentType == "image/jpeg")) {
 					ModelState.AddModelError("", "A imagem tem de ser do tipo PNG ou JPG.");
 					return View(fotos);
@@ -99,7 +103,7 @@ namespace NotiX.Controllers
 						// Gera nome único usando o nome original + timestamp
 						string timestamp = DateTime.Now.ToString("yyyyMMddHHmmssfff");
 
-						// Gera um nome único com base em GUID
+						// Gera um nome único com base no timestamp de quando a imagem foi carregada
 						nomeImagem = $"{fotos.Nome}_{timestamp}_{extensao}";
 
 						// Atribui o nome ao modelo
@@ -114,17 +118,20 @@ namespace NotiX.Controllers
 				_context.Add(fotos);
 				await _context.SaveChangesAsync();
 
-				// Se houver imagem válida, guardar no disco
+				// Se houver imagem válida, guardar imagem no servidor na pasta "Imagens" do arquivo wwwroot
 				if (haImagem) {
 					string caminhoBase = _webHostEnvironment.WebRootPath;
 					string caminhoImagens = Path.Combine(caminhoBase, "Imagens");
 
+					// Verifica se a pasta "Imagens" existe, caso não exista, cria-a
 					if (!Directory.Exists(caminhoImagens)) {
 						Directory.CreateDirectory(caminhoImagens);
 					}
 
+					// Caminho completo da imagem a ser guardada
 					string caminhoCompletoImagem = Path.Combine(caminhoImagens, nomeImagem);
 
+					// Guarda a imagem no servidor
 					using (var stream = new FileStream(caminhoCompletoImagem, FileMode.Create)) {
 						await Foto.CopyToAsync(stream);
 					}
@@ -137,8 +144,9 @@ namespace NotiX.Controllers
 			return View(fotos);
 		}
 
-        // GET: Fotos/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+		// GET: Fotos/Edit/5
+		// Mostrar a view para editar uma foto
+		public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
             {
@@ -160,21 +168,25 @@ namespace NotiX.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Nome")] Fotos fotos)
         {
-            if (id != fotos.Id)
+			// Verifica se o ID da foto corresponde ao ID fornecido
+			if (id != fotos.Id)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+			// Verifica se o modelo é válido
+			if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(fotos);
+					// Atualiza a foto na base de dados
+					_context.Update(fotos);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
+				// Se ocorrer uma exceção de concorrência, verifica se a foto ainda existe
+				catch (DbUpdateConcurrencyException)
                 {
-                    if (!FotosExists(fotos.Id))
+					// Verifica se a foto ainda existe na base de dados
+					if (!FotosExists(fotos.Id))
                     {
                         return NotFound();
                     }
@@ -191,12 +203,13 @@ namespace NotiX.Controllers
         // GET: Fotos/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+			// Verifica se o ID é nulo
+			if (id == null)
             {
                 return NotFound();
             }
-
-            var fotos = await _context.Fotos.FirstOrDefaultAsync(m => m.Id == id);
+			// Busca a foto na base de dados
+			var fotos = await _context.Fotos.FirstOrDefaultAsync(m => m.Id == id);
             if (fotos == null)
             {
                 return NotFound();
@@ -210,7 +223,8 @@ namespace NotiX.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var fotos = await _context.Fotos.FindAsync(id);
+			// Verifica se a foto existe na base de dados
+			var fotos = await _context.Fotos.FindAsync(id);
             if (fotos != null)
             {
                 // Caminho da imagem no servidor
@@ -229,11 +243,13 @@ namespace NotiX.Controllers
                 _context.Fotos.Remove(fotos);
             }
 
-            await _context.SaveChangesAsync();
+			// Salvar as alterações na base de dados
+			await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
-        private bool FotosExists(int id)
+		// verifica se a foto existe na base de dados
+		private bool FotosExists(int id)
         {
             return _context.Fotos.Any(e => e.Id == id);
         }

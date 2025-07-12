@@ -54,7 +54,7 @@ namespace NotiX.Controllers.API
         /// GET: devolver uma Categorias, 
         /// quando a solicitação é feita através de HTTP GET
         /// </summary>
-        /// <param name="id">idenrtificador da categoria pretendida</param>
+        /// <param name="id">identificador da categoria pretendida</param>
         /// <returns></returns>
         [HttpGet("{id}")]
         public async Task<ActionResult<CategoriasDTO>> GetCategoria(int id) {

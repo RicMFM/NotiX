@@ -23,7 +23,7 @@ namespace NotiX.Controllers
 
         // GET: Categorias
         [AllowAnonymous]
-        public async Task<IActionResult> Index()
+		public async Task<IActionResult> Index()
         {
             var categorias = await _context.Categorias
                                .Select(c => c)
