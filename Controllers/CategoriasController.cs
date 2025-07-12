@@ -25,7 +25,10 @@ namespace NotiX.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Categorias.ToListAsync());
+            var categorias = await _context.Categorias
+                               .Select(c => c)
+                               .ToListAsync();
+            return View(categorias);
         }
 
         // GET: Categorias/Details/5
@@ -38,7 +41,9 @@ namespace NotiX.Controllers
             }
 
             var categorias = await _context.Categorias
-                .FirstOrDefaultAsync(m => m.Id == id);
+                                  .Where(c => c.Id == id)
+                                  .FirstOrDefaultAsync();
+
             if (categorias == null)
             {
                 return NotFound();
@@ -77,7 +82,9 @@ namespace NotiX.Controllers
                 return NotFound();
             }
 
-            var categorias = await _context.Categorias.FindAsync(id);
+            var categorias = await _context.Categorias
+                                  .Where(c => c.Id == id)
+                                  .FirstOrDefaultAsync();
             if (categorias == null)
             {
                 return NotFound();
@@ -129,7 +136,9 @@ namespace NotiX.Controllers
             }
 
             var categorias = await _context.Categorias
-                .FirstOrDefaultAsync(m => m.Id == id);
+                                  .Where(c => c.Id == id)
+                                  .FirstOrDefaultAsync();
+
             if (categorias == null)
             {
                 return NotFound();
@@ -143,9 +152,12 @@ namespace NotiX.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var categorias = await _context.Categorias.FindAsync(id);
+            var categorias = await _context.Categorias
+                                 .Where(c => c.Id == id)
+                                 .FirstOrDefaultAsync();
             if (categorias != null)
             {
+                // a Categoria só é apagada se existir
                 _context.Categorias.Remove(categorias);
             }
 

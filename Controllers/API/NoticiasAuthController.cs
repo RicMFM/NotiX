@@ -14,14 +14,16 @@ namespace NotiX.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class NoticiasController : ControllerBase
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    public class NoticiasAuthController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public NoticiasController(ApplicationDbContext context)
+        public NoticiasAuthController(ApplicationDbContext context)
         {
             _context = context;
         }
+        [AllowAnonymous]
         // GET: api/Noticias
         [HttpGet]
         public async Task<ActionResult<IEnumerable<NoticiaComFotosDTO>>> GetNoticias()

@@ -12,7 +12,6 @@ namespace NotiX.Models
         public Noticias()
         {
             this.DataEscrita = DateTime.Now;
-            ListaAutores = new HashSet<Utilizadores>();
             ListaFotos = new HashSet<Fotos>();
         }
         /// <summary>
@@ -49,10 +48,6 @@ namespace NotiX.Models
         [ForeignKey(nameof(Categoria))]
         public int CategoriaFK { get; set; }
         public Categorias Categoria { get; set; }
-        /// <summary>
-        /// Lista de autores associados a uma noticia
-        /// </summary>
-        public ICollection<Utilizadores> ListaAutores { get; set; }
         /// <summary>
         /// Lista de fotos associadas a uma noticia
         /// </summary>

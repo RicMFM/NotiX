@@ -3,7 +3,12 @@
 @{
     ViewData["Title"] = "Details";
 }
-
+<div>
+    <form asp-action="Index" method="get">
+        <button type="submit" class="btn btn-danger"> <i class="bi bi-arrow-left"></i> Voltar</button>
+    </form>
+</div>
+<br />
 <h1 class="text-center">Detalhes da Foto</h1>
 
 <div class="d-flex justify-content-center">
@@ -19,9 +24,5 @@
         </dd>
     </dl>
 </div>
-<div>
-    <form asp-action="Index" method="get">
-        <button type="submit" class="btn btn-danger"> <i class="bi bi-arrow-left"></i> Voltar</button>
-    </form>
-</div>
+
 

@@ -58,7 +58,10 @@ namespace NotiX.Controllers
             {
                 return NotFound();
             }
-            var noticias = await _context.Noticias.Include(f => f.ListaFotos).Include(c => c.Categoria).FirstOrDefaultAsync(m => m.Id == id);
+            var noticias = await _context.Noticias
+                                    .Include(f => f.ListaFotos)
+                                    .Include(c => c.Categoria)
+                                    .FirstOrDefaultAsync(m => m.Id == id);
             if (noticias == null)
             {
                 return NotFound();
@@ -162,7 +165,11 @@ namespace NotiX.Controllers
                 return NotFound();
             }
             //lista de noticias
-            var noticias = await _context.Noticias.Include(f => f.ListaFotos).Include(f => f.Categoria).Where(f => f.Id == id).FirstAsync();
+            var noticias = await _context.Noticias
+                                            .Include(f => f.ListaFotos)
+                                            .Include(f => f.Categoria)
+                                            .Where(f => f.Id == id)
+                                            .FirstAsync();
             if (noticias == null)
             {
                 return NotFound();
@@ -282,7 +289,9 @@ namespace NotiX.Controllers
                 string caminhoImagem = Path.Combine(_webHostEnvironment.WebRootPath, "Imagens", foto.Nome);
 
                 // Remover a imagem da lista de fotos da notícia
-                var noticia = await _context.Noticias.Include(n => n.ListaFotos).FirstOrDefaultAsync(n => n.Id == noticiaId);
+                var noticia = await _context.Noticias
+                                                .Include(n => n.ListaFotos)
+                                                .FirstOrDefaultAsync(n => n.Id == noticiaId);
 				if (noticia != null)
                 {
                     noticia.ListaFotos.Remove(foto);
