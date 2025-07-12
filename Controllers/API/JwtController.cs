@@ -8,11 +8,11 @@ using System.Security.Claims;
 using System.Text;
 using NotiX.ViewModels;
 
-namespace AppFotos.Controllers.API
+namespace NotiX.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthController : ControllerBase
+    public class JwtController : ControllerBase
     {
 
         private readonly ApplicationDbContext _context;
@@ -20,7 +20,7 @@ namespace AppFotos.Controllers.API
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _config;
 
-        public AuthController(ApplicationDbContext context,
+        public JwtController(ApplicationDbContext context,
            UserManager<IdentityUser> userManager,
            SignInManager<IdentityUser> signInManager,
            IConfiguration config)

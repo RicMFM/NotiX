@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +14,12 @@ namespace NotiX.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FotosController : ControllerBase
+    [Authorize(AuthenticationSchemes = "Bearer")]
+    public class FotosAuthController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public FotosController(ApplicationDbContext context)
+        public FotosAuthController(ApplicationDbContext context)
         {
             _context = context;
         }

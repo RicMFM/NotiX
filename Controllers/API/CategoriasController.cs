@@ -14,12 +14,11 @@ namespace NotiX.Controllers.API
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = "Bearer")]
-    public class CategoriasAuthController : ControllerBase
+    public class CategoriasController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public CategoriasAuthController(ApplicationDbContext context)
+        public CategoriasController(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -30,6 +29,7 @@ namespace NotiX.Controllers.API
         /// </summary>
         /// <returns></returns>
         [HttpGet]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<Categorias>>> GetCategorias()
         {
             var resultado = await _context.Categorias

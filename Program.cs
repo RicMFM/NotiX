@@ -7,6 +7,7 @@ using NotiX.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,6 +53,16 @@ builder.Services.AddAuthentication(options => { })
            ValidIssuer = jwtSettings["Issuer"],
            ValidAudience = jwtSettings["Audience"],
            IssuerSigningKey = new SymmetricSecurityKey(key)
+       };
+       options.Events = new JwtBearerEvents
+       {
+           OnChallenge = context =>
+           {
+               context.HandleResponse(); // Impede o redirecionamento
+               context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+               context.Response.ContentType = "application/json";
+               return context.Response.WriteAsync("{\"error\": \"Unauthorized\"}");
+           }
        };
    });
 
